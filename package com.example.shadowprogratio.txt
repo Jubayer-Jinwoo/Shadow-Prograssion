@@ -1,0 +1,70 @@
+package com.example.shadowprogration;
+
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.widget.CheckBox;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+import android.widget.Button;
+import android.content.Intent;
+
+public class MainActivity extends AppCompatActivity {
+
+    private CheckBox pushupsCheckBox, squatsCheckBox, jumpingJacksCheckBox;
+    private TextView xpDisplay;
+    private int xp = 0, level = 1;
+
+    SharedPreferences prefs;
+    SharedPreferences.Editor editor;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        pushupsCheckBox = findViewById(R.id.pushupsCheckBox);
+        squatsCheckBox = findViewById(R.id.squatsCheckBox);
+        jumpingJacksCheckBox = findViewById(R.id.jumpingJacksCheckBox);
+        xpDisplay = findViewById(R.id.xpDisplay);
+
+        prefs = getSharedPreferences("ShadowPrefs", MODE_PRIVATE);
+        editor = prefs.edit();
+
+        xp = prefs.getInt("xp", 0);
+        level = prefs.getInt("level", 1);
+
+        xpDisplay.setText("XP: " + xp + " | Level: " + level);
+
+        pushupsCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) addXP(20);
+        });
+
+        squatsCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) addXP(15);
+        });
+
+        jumpingJacksCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) addXP(10);
+        });
+
+        Button inventoryButton = findViewById(R.id.inventoryButton);
+        inventoryButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, InventoryActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    private void addXP(int value) {
+        xp += value;
+        if (xp >= 100) {
+            level++;
+            xp -= 100;
+        }
+
+        editor.putInt("xp", xp);
+        editor.putInt("level", level);
+        editor.apply();
+
+        xpDisplay.setText("XP: " + xp + " | Level: " + level);
+    }
+}
